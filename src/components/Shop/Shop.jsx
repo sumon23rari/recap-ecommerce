@@ -16,12 +16,12 @@ const Shop = () => {
     const pages=[...Array(numberOfPage).keys()];
   
     useEffect(()=>{
-        fetch('http://localhost:5000/productTotal')
+        fetch('https://ema-john-pagination-server-starter-khaki.vercel.app/productTotal')
         .then(res=>res.json())
         .then(data=>setCount(data?.count))
     },[])
     useEffect(() => {
-        fetch(`http://localhost:5000/products?page=${currentPage}&size=${itemPerPage}`)
+        fetch(`https://ema-john-pagination-server-starter-khaki.vercel.app/products?page=${currentPage}&size=${itemPerPage}`)
             .then(res => res.json())
             .then(data => setProducts(data))
     }, [currentPage,itemPerPage]);
