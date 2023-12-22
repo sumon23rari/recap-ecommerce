@@ -18,7 +18,7 @@ const Shop = () => {
     useEffect(()=>{
         fetch('http://localhost:5000/productTotal')
         .then(res=>res.json())
-        .then(data=>setCount(data.count))
+        .then(data=>setCount(data?.count))
     },[])
     useEffect(() => {
         fetch(`http://localhost:5000/products?page=${currentPage}&size=${itemPerPage}`)
@@ -114,7 +114,7 @@ const Shop = () => {
             <h3>currentPage Number:{currentPage}</h3>
             <button onClick={handlePrevPage}>prev</button>
             {
-                pages.map(page=><button key={page}
+                pages?.map(page=><button key={page}
                     className={currentPage===page ? 'selected':undefined}
                     onClick={()=>setCurrentPage(page)}
                     >{page}</button>)
