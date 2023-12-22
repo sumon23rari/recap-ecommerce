@@ -3,38 +3,65 @@ import { addToDb, deleteShoppingCart, getShoppingCart } from '../../utilities/fa
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css';
-import { Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useState([])
-
+    // const [cart, setCart] = useState([]);
+    const cart=useLoaderData()
+    const [currentPage,setCurrentPage]=useState(0)
+    const [itemPerPage,setItemPerPage]=useState(10)
+    const [count,setCount]=useState(0)
+    const numberOfPage=Math.ceil(count/itemPerPage)
+    const pages=[...Array(numberOfPage).keys()];
+  
+    useEffect(()=>{
+        fetch('http://localhost:5000/productTotal')
+        .then(res=>res.json())
+        .then(data=>setCount(data.count))
+    },[])
     useEffect(() => {
-        fetch('http://localhost:5000/products')
+        fetch(`http://localhost:5000/products?page=${currentPage}&size=${itemPerPage}`)
             .then(res => res.json())
             .then(data => setProducts(data))
-    }, []);
+    }, [currentPage,itemPerPage]);
 
-    useEffect(() => {
-        const storedCart = getShoppingCart();
-        const savedCart = [];
-        // step 1: get id of the addedProduct
-        for (const id in storedCart) {
-            // step 2: get product from products state by using id
-            const addedProduct = products.find(product => product._id === id)
-            if (addedProduct) {
-                // step 3: add quantity
-                const quantity = storedCart[id];
-                addedProduct.quantity = quantity;
-                // step 4: add the added product to the saved cart
-                savedCart.push(addedProduct);
-            }
-            // console.log('added Product', addedProduct)
+    // useEffect(() => {
+    //     const storedCart = getShoppingCart();
+    //     const savedCart = [];
+    //     // step 1: get id of the addedProduct
+    //     for (const id in storedCart) {
+    //         // step 2: get product from products state by using id
+    //         const addedProduct = products.find(product => product._id === id)
+    //         if (addedProduct) {
+    //             // step 3: add quantity
+    //             const quantity = storedCart[id];
+    //             addedProduct.quantity = quantity;
+    //             // step 4: add the added product to the saved cart
+    //             savedCart.push(addedProduct);
+    //         }
+    //         // console.log('added Product', addedProduct)
+    //     }
+    //     // step 5: set the cart
+    //     setCart(savedCart);
+    // }, [products])
+    const handleItemPerPage=(e)=>{
+        const changeValue=e.target.value;
+        setItemPerPage(changeValue)
+        setCurrentPage(0)
+    }
+    const handlePrevPage=()=>{
+        if (currentPage >0) {
+            setCurrentPage(currentPage-1)
         }
-        // step 5: set the cart
-        setCart(savedCart);
-    }, [products])
-
+    }
+    const handleNextPage=()=>{
+        if (currentPage) {
+            if (currentPage <pages.length -1) {
+                setCurrentPage(currentPage+1)
+            }
+        }
+    }
     const handleAddToCart = (product) => {
         // cart.push(product); '
         let newCart = [];
@@ -81,6 +108,24 @@ const Shop = () => {
                         <button className='btn-proceed'>Review Order</button>
                     </Link>
                 </Cart>
+            </div>
+            <div>
+            <h3 className='pageNation'>
+            <h3>currentPage Number:{currentPage}</h3>
+            <button onClick={handlePrevPage}>prev</button>
+            {
+                pages.map(page=><button key={page}
+                    className={currentPage===page ? 'selected':undefined}
+                    onClick={()=>setCurrentPage(page)}
+                    >{page}</button>)
+            }
+            <button onClick={handleNextPage}>next</button>
+            <select value={itemPerPage} onChange={handleItemPerPage}>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            </select>
+            </h3>
             </div>
         </div>
     );
